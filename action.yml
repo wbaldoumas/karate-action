@@ -9,5 +9,17 @@ inputs:
     description: 'Karata file or directory path with tests.'
     required: true
 runs:
-  using: docker
-  image: Dockerfile
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup Docker
+      run: |
+        docker build -t local-karate .
+      shell: bash
+
+    - name: Run Docker container on host network
+      run: |
+        docker run --network host local-karate ${{ inputs.tests }} ${{ inputs.url }}
+      shell: bash
